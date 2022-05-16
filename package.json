@@ -1,0 +1,19 @@
+{
+  "name": "revertable",
+  "version": "0.1.0",
+  "main": "src/main.ts",
+  "license": "MIT",
+  "readme": "README.MD",
+  "dependencies": {
+    "@velas/web3": "=0.1.15"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4",
+    "ts-node": "^10.7.0"
+  },
+  "scripts": {
+    "bpf:build": "cargo build-bpf --manifest-path=./src/revertable/Cargo.toml --bpf-out-dir=dist/program",
+    "bpf:deploy": "",
+    "client:run": "ts-node src/client/src/main.ts"
+  }
+}

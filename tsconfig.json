@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "lib": ["ES2015"]
+  },
+  "include": ["src/client/**/*"],
+  "exclude": ["node_modules"]
+}

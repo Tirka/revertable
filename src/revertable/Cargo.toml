@@ -1,0 +1,18 @@
+[package]
+name = "revertable"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# solana-evm-loader-program = { path = "../../../velas-chain/evm-utils/programs/evm_loader" }
+# solana-sdk = { path = "../../../velas-chain/sdk" }
+# solana-program = { path = "../../../velas-chain/sdk/program" }
+# primitive-types = "0.8.0"
+# tokio = { version = "1", features = ["full"]}
+
+[dev-dependencies]
+# solana-program-test = { path = "../../../velas-chain/program-test" }
+
+[lib]
+name = "revertable"
+crate-type = ["lib", "cdylib"]
