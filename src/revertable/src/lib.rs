@@ -4,14 +4,14 @@ use solana_program::{
     entrypoint::ProgramResult,
     pubkey::Pubkey,
     program_error::ProgramError,
-    program::invoke_signed,
+    program::invoke,
     msg
 };
 
 // use solana_evm_loader_program::{transfer_native_to_evm_ixs};
 
-use primitive_types::H160;
-use solana_sdk::transaction::Transaction;
+// use primitive_types::H160;
+// use solana_sdk::transaction::Transaction;
 
 entrypoint!(program);
 
@@ -22,7 +22,7 @@ pub fn program(
 ) -> ProgramResult {
     let owner = Pubkey::new_from_array([7; 32]);
     let lamports = 10_000;
-    let ether_address = H160([4; 20]);
+    // let ether_address = H160([4; 20]);
 
     let accs = accounts.iter().collect::<Vec<_>>();
     msg!("accs: {:?}", &accs);
