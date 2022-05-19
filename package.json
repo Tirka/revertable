@@ -13,7 +13,7 @@
   },
   "scripts": {
     "bpf:build": "cargo build-bpf --manifest-path=./src/revertable/Cargo.toml --bpf-out-dir=dist/program",
-    "bpf:deploy": "",
+    "bpf:deploy": "velas program deploy dist/program/revertable.so",
     "client:run": "ts-node src/client/src/main.ts"
   }
 }

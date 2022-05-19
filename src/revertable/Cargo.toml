@@ -7,17 +7,14 @@ edition = "2021"
 no-entrypoint = []
 
 [dependencies]
-# TODO: uncomment and build me
-# solana-evm-loader-program = { path = "../../../velas-chain/evm-utils/programs/evm_loader" }
-solana-program = "=1.7.1"
+solana-program = "~1.9.22"
+primitive-types = { version = "0.11.1", default-features = false, features = ["serde_no_std"] }
+serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
-solana-program-test = "=1.7.1"
-solana-sdk = "=1.7.1"
+solana-sdk = "~1.9.22"
+solana-program-test = "~1.9.22"
 
 [lib]
 name = "revertable"
 crate-type = ["lib", "cdylib"]
-
-# primitive-types = "0.8.0"
-# tokio = { version = "1", features = ["full"]}
