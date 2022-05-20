@@ -1,4 +1,5 @@
 /node_modules
-/src/revertable/target
+/src/programs/target
+/src/programs/*/target
 /dist
 .env

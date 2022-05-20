@@ -17,8 +17,8 @@
     "@types/node": "^17.0.35"
   },
   "scripts": {
-    "bpf:build": "cargo build-bpf --manifest-path=./src/revertable/Cargo.toml --bpf-out-dir=dist/program",
-    "bpf:deploy": "velas program deploy dist/program/revertable.so",
+    "build": "./scripts/build.sh",
+    "deploy": "./scripts/deploy.sh",
     "client:run": "ts-node src/client/src/main.ts"
   }
 }
