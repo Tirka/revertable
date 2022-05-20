@@ -1,3 +1,4 @@
 /node_modules
 /src/revertable/target
 /dist
+.env
