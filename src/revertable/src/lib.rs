@@ -45,6 +45,14 @@ pub fn program(
     Err(ProgramError::Custom(33))
 }
 
+fn evm_state_id() -> Pubkey {
+    Pubkey::from_str("EvmState11111111111111111111111111111111111").unwrap()
+}
+
+fn evm_id() -> Pubkey {
+    Pubkey::from_str("EVM1111111111111111111111111111111111111111").unwrap()
+}
+
 fn transfer_native_to_evm_ixs(
     owner: Pubkey,
     lamports: u64,
@@ -60,26 +68,16 @@ fn transfer_native_to_evm_ixs(
 
 fn free_ownership(owner: Pubkey) -> Instruction {
     let account_metas = vec![
-        AccountMeta::new(
-            Pubkey::from_str("EvmState11111111111111111111111111111111111").unwrap(),
-            false,
-        ),
+        AccountMeta::new(evm_state_id(), false),
         AccountMeta::new(owner, true),
     ];
 
-    Instruction::new_with_bincode(
-        Pubkey::from_str("EVM1111111111111111111111111111111111111111").unwrap(),
-        &EvmInstruction::FreeOwnership {},
-        account_metas,
-    )
+    Instruction::new_with_bincode(evm_id(), &EvmInstruction::FreeOwnership {}, account_metas)
 }
 
 fn transfer_native_to_evm(owner: Pubkey, lamports: u64, evm_address: H160) -> Instruction {
     let account_metas = vec![
-        AccountMeta::new(
-            Pubkey::from_str("EvmState11111111111111111111111111111111111").unwrap(),
-            false,
-        ),
+        AccountMeta::new(evm_state_id(), false),
         AccountMeta::new(owner, true),
     ];
 
@@ -118,7 +116,6 @@ enum EvmInstruction {
     },
 }
 
-/// Etherium transaction.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 struct Transaction {
     pub nonce: U256,
