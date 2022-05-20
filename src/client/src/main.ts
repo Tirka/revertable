@@ -6,8 +6,11 @@ import {
    Transaction,
    TransactionInstruction,
    sendAndConfirmTransaction,
-   PublicKey
+   PublicKey,
+   SystemProgram,
 } from "@velas/web3"
+
+const EVM_PROGRAM_ID = new PublicKey('EVM1111111111111111111111111111111111111111')
 
 async function loadKeypair(filePath: string): Promise<Keypair> {
    const secretKeyString = await fs.readFile(filePath, { encoding: 'utf8' })
@@ -15,16 +18,24 @@ async function loadKeypair(filePath: string): Promise<Keypair> {
    return Keypair.fromSecretKey(secretKey)
 }
 
-function callRevertable(user: PublicKey, programId: PublicKey): Transaction {
+function callRevertable(user: PublicKey, invokeProgramId: PublicKey, revertProgramId: PublicKey): Transaction {
    return new Transaction().add(
       new TransactionInstruction({
          keys: [
+            { pubkey: revertProgramId, isSigner: false, isWritable: true },
             { pubkey: user, isSigner: true, isWritable: true }
          ],
-         programId,
-         data: Buffer.from([0x42]),
+         programId: invokeProgramId,
+         data: Buffer.from([0x42]), // ether address
       })
    )
+}
+
+function assign(user: PublicKey): Transaction {
+   return new Transaction().add(SystemProgram.assign({
+      accountPubkey: user,
+      programId: EVM_PROGRAM_ID
+   }))
 }
 
 async function main() {
@@ -32,16 +43,29 @@ async function main() {
 
    const RPC_URL = process.env.RPC_URL || ''
    const SIGNER_KEYPAIR = process.env.SIGNER_KEYPAIR || ''
-   const PROGRAM_ID = process.env.PROGRAM_ID || ''
+   const REVERT_PROGRAM_ID = process.env.REVERT_PROGRAM_ID || ''
+   const INVOKE_PROGRAM_ID = process.env.INVOKE_PROGRAM_ID || ''
 
    console.info(`RPC_URL=${RPC_URL}`)
    console.info(`SIGNER_KEYPAIR=${SIGNER_KEYPAIR}`)
-   console.info(`PROGRAM_ID=${PROGRAM_ID}`)
+   console.info(`REVERT_PROGRAM_ID=${REVERT_PROGRAM_ID}`)
+   console.info(`INVOKE_PROGRAM_ID=${INVOKE_PROGRAM_ID}`)
 
    const connection = new Connection(RPC_URL, 'confirmed')
    const user = await loadKeypair(SIGNER_KEYPAIR);
-   const tx = callRevertable(user.publicKey, new PublicKey(PROGRAM_ID))
-   const result = await sendAndConfirmTransaction(connection, tx, [user])
+   // user should have some tokens
+   let userBalance = connection.getBalance(user.publicKey);
+   console.info(userBalance)
+   const assign_tx = assign(user.publicKey)
+   const call_tx = callRevertable(user.publicKey, new PublicKey(INVOKE_PROGRAM_ID), new PublicKey(REVERT_PROGRAM_ID))
+
+   let result = await sendAndConfirmTransaction(connection, assign_tx, [user])
+   result = await sendAndConfirmTransaction(connection, call_tx, [user])
+
+   userBalance = connection.getBalance(user.publicKey);
+   console.info(userBalance)
+
+   // TODO: check EVM address balance
 
    console.info("client has exited...")
 }

@@ -1,7 +1,7 @@
 use primitive_types::{H160, H256, U256};
 use serde::{Deserialize, Serialize};
 use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+    account_info::AccountInfo,
     entrypoint,
     entrypoint::ProgramResult,
     instruction::AccountMeta,
@@ -10,26 +10,41 @@ use solana_program::{
     program::invoke,
     program_error::ProgramError,
     pubkey::Pubkey,
+    system_instruction
 };
 use std::str::FromStr;
+
+fn evm_state_id() -> Pubkey {
+    Pubkey::from_str("EvmState11111111111111111111111111111111111").unwrap()
+}
+
+fn evm_id() -> Pubkey {
+    Pubkey::from_str("EVM1111111111111111111111111111111111111111").unwrap()
+}
 
 entrypoint!(program);
 
 pub fn program(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
-    _instruction_data: &[u8],
+    instruction_data: &[u8],
 ) -> ProgramResult {
-    let owner = Pubkey::new_from_array([7; 32]);
     let lamports = 10_000;
-    let ether_address = H160([4; 20]);
 
-    let accs = accounts.iter().collect::<Vec<_>>();
-    msg!("accs: {:?}", &accs);
+    let ether_address = if instruction_data.len() == 20 {
+        H160::from_slice(&instruction_data[0..20])
+    } else {
+        msg!("warn: ether_address set to default");
+        H160::default()
+    };
 
-    let _root = next_account_info(&mut accounts.iter())?;
+    if accounts.is_empty() {
+        return Err(ProgramError::NotEnoughAccountKeys)
+    }
 
-    let instructions = transfer_native_to_evm_ixs(owner, lamports, ether_address);
+    let owner = &accounts[0];
+
+    let instructions = transfer_native_to_evm_ixs(*owner.key, lamports, ether_address);
 
     for (idx, i) in instructions.iter().enumerate() {
         match invoke(&i, accounts) {
@@ -45,22 +60,13 @@ pub fn program(
     Err(ProgramError::Custom(33))
 }
 
-fn evm_state_id() -> Pubkey {
-    Pubkey::from_str("EvmState11111111111111111111111111111111111").unwrap()
-}
-
-fn evm_id() -> Pubkey {
-    Pubkey::from_str("EVM1111111111111111111111111111111111111111").unwrap()
-}
-
 fn transfer_native_to_evm_ixs(
     owner: Pubkey,
     lamports: u64,
     ether_address: H160,
 ) -> Vec<Instruction> {
     vec![
-        // FIXME: uncomment
-        // solana_sdk::system_instruction::assign(&owner, &EVM_ID),
+        system_instruction::assign(&owner, &evm_id()),
         transfer_native_to_evm(owner, lamports, ether_address),
         free_ownership(owner),
     ]
