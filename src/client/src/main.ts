@@ -55,15 +55,16 @@ async function main() {
    const user = await loadKeypair(SIGNER_KEYPAIR);
    // user should have some tokens
    let userBalance = await connection.getBalance(user.publicKey);
-   console.info(userBalance)
+   console.info(`SOL balance before operation: ${userBalance}`)
    const assign_tx = assign(user.publicKey)
    const call_tx = callRevertable(user.publicKey, new PublicKey(INVOKE_PROGRAM_ID), new PublicKey(REVERT_PROGRAM_ID))
 
-   let result = await sendAndConfirmTransaction(connection, assign_tx, [user])
-   result = await sendAndConfirmTransaction(connection, call_tx, [user])
+   let signature = await connection.sendTransaction(assign_tx, [user], { skipPreflight: true })
+
+   signature = await connection.sendTransaction(call_tx, [user], { skipPreflight: true })
 
    userBalance = await connection.getBalance(user.publicKey);
-   console.info(userBalance)
+   console.info(`SOL balance after operation: ${userBalance}`)
 
    // TODO: check EVM address balance
 
