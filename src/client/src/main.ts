@@ -54,7 +54,7 @@ async function main() {
    const connection = new Connection(RPC_URL, 'confirmed')
    const user = await loadKeypair(SIGNER_KEYPAIR);
    // user should have some tokens
-   let userBalance = connection.getBalance(user.publicKey);
+   let userBalance = await connection.getBalance(user.publicKey);
    console.info(userBalance)
    const assign_tx = assign(user.publicKey)
    const call_tx = callRevertable(user.publicKey, new PublicKey(INVOKE_PROGRAM_ID), new PublicKey(REVERT_PROGRAM_ID))
@@ -62,7 +62,7 @@ async function main() {
    let result = await sendAndConfirmTransaction(connection, assign_tx, [user])
    result = await sendAndConfirmTransaction(connection, call_tx, [user])
 
-   userBalance = connection.getBalance(user.publicKey);
+   userBalance = await connection.getBalance(user.publicKey);
    console.info(userBalance)
 
    // TODO: check EVM address balance
