@@ -46,6 +46,8 @@ pub fn program(
 
     let instructions = transfer_native_to_evm_ixs(*owner.key, lamports, ether_address);
 
+    msg!("Revertable program hello");
+
     for (idx, i) in instructions.iter().enumerate() {
         match invoke(&i, accounts) {
             Ok(_) => msg!("[{}] ✅ instruction executed successfully: {:?}", idx, &i),
@@ -66,9 +68,9 @@ fn transfer_native_to_evm_ixs(
     ether_address: H160,
 ) -> Vec<Instruction> {
     vec![
-        system_instruction::assign(&owner, &evm_id()),
+        // system_instruction::assign(&owner, &evm_id()),
         transfer_native_to_evm(owner, lamports, ether_address),
-        free_ownership(owner),
+        // free_ownership(owner),
     ]
 }
 
@@ -88,7 +90,7 @@ fn transfer_native_to_evm(owner: Pubkey, lamports: u64, evm_address: H160) -> In
     ];
 
     Instruction::new_with_bincode(
-        Pubkey::default(),
+        evm_id(),
         &EvmInstruction::SwapNativeToEther {
             lamports,
             evm_address,
