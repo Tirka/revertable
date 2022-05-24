@@ -2,15 +2,34 @@ use solana_program::{
     account_info::AccountInfo,
     entrypoint,
     entrypoint::ProgramResult,
-    pubkey::Pubkey
+    pubkey::Pubkey,
+    program::invoke,
+    instruction::{AccountMeta, Instruction},
 };
 
-entrypoint!(program);
+entrypoint!(process_instruction);
 
-pub fn program(
+#[allow(clippy::unnecessary_wraps)]
+fn process_instruction(
     _program_id: &Pubkey,
-    _accounts: &[AccountInfo],
-    _instruction_data: &[u8],
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
 ) -> ProgramResult {
+    let to_call = accounts[0].key;
+    let infos = accounts;
+    let instruction = Instruction {
+        accounts: accounts[1..]
+            .iter()
+            .map(|acc| AccountMeta {
+                pubkey: *acc.key,
+                is_signer: acc.is_signer,
+                is_writable: acc.is_writable,
+            })
+            .collect(),
+        data: instruction_data.to_owned(),
+        program_id: *to_call,
+    };
+    let _ = invoke(&instruction, &infos);
+
     Ok(())
 }
